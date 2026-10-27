@@ -1,0 +1,47 @@
+name: Tirages FDJ
+
+on:
+  schedule:
+    - cron: "40 21 * * *"   # chaque soir, après les tirages (heure UTC)
+    - cron: "10 5 * * *"    # et chaque matin, au cas où la FDJ publie tard
+  workflow_dispatch:         # bouton "Run workflow" pour lancer à la main
+
+permissions:
+  contents: write
+
+jobs:
+  maj:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Télécharger les archives officielles FDJ
+        run: |
+          set -e
+          base="https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66af"
+          mkdir -p tmp/loto tmp/em
+          dl() { curl -fsSL --retry 3 -A "Mozilla/5.0" -o "$2" "${base}$1"; }
+          # Loto (obligatoire)
+          dl p6 tmp/loto.zip && unzip -o -q tmp/loto.zip -d tmp/loto/main
+          # Super Loto et Grand Loto (facultatifs, ce sont aussi des tirages Loto)
+          (dl k6 tmp/super.zip && unzip -o -q tmp/super.zip -d tmp/loto/super) || echo "Super Loto ignoré"
+          (dl g6 tmp/grand.zip && unzip -o -q tmp/grand.zip -d tmp/loto/grand) || echo "Grand Loto ignoré"
+          # EuroMillions (obligatoire)
+          dl e6 tmp/em.zip && unzip -o -q tmp/em.zip -d tmp/em
+          find tmp -name "*.csv"
+
+      - name: Convertir pour l'appli
+        run: node scripts/fetch-fdj.mjs
+
+      - name: Enregistrer les nouveaux tirages
+        run: |
+          git config user.name "robot-fdj"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet && echo "Rien de nouveau" && exit 0
+          git commit -m "Tirages FDJ du $(date -u +%d/%m/%Y)"
+          git push
