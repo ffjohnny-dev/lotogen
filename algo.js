@@ -46,9 +46,9 @@
     const p = period(today);
     const sorted = [...draws].sort((a, b) => (a.date < b.date ? 1 : -1));
     const inPeriod = sorted.filter((d) => d.date >= p.from && d.date <= p.to);
-    const previous = sorted.find((d) => d.date < p.to) || null; // dernier tirage avant aujourd'hui
-    const exMain = new Set(previous ? previous.n : []);
-    const exBonus = new Set(previous ? previous.b : []);
+    const previous = sorted.filter((d) => d.date < p.to).slice(0, 2); // les 2 derniers tirages avant aujourd'hui
+    const exMain = new Set(previous.flatMap((d) => d.n));
+    const exBonus = new Set(previous.flatMap((d) => d.b));
     const fMain = count(inPeriod, "n", g.mainMax);
     const fBonus = count(inPeriod, "b", g.bonusMax);
     const rMain = ranked(fMain, g.mainMax, exMain, rnd);

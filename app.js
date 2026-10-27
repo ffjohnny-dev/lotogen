@@ -59,8 +59,8 @@
       <div class="info">
         <p><b>Analyse</b> du ${fr(res.period.from)} au ${fr(res.period.to)} · ${res.drawsCount} tirages</p>
         <p><b>Plus sortis</b> : ${top.map((t) => `${t.x}<sup>×${t.f}</sup>`).join(" ")}</p>
-        ${res.previous
-          ? `<p><b>Exclus</b> (tirage du ${fr(res.previous.date)}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
+        ${res.previous.length
+          ? `<p><b>Exclus</b> (tirages du ${res.previous.map((p) => fr(p.date)).join(" et du ")}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
           : `<p class="bad">Aucun tirage précédent trouvé : pas d'exclusion possible.</p>`}
       </div>`;
     if (res.drawsCount === 0) html = `<p class="bad">Aucun tirage sur la période. Les données ne sont peut-être pas à jour.</p>` + html;
