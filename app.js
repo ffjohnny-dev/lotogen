@@ -50,7 +50,7 @@
     const g = res.game;
     let html = res.grids.map((gr, i) => `
       <article class="grid">
-        <h2>Grille ${i + 1} <small>${i === 0 ? "parmi les 10 plus sortis" : "parmi les 15 plus sortis"}</small></h2>
+        <h2>Grille ${i + 1} <small>parmi les ${gr.pool} plus sortis</small></h2>
         <div class="row">${balls(gr.n, "")}<span class="sep"></span>${balls(gr.b, "bonus")}</div>
       </article>`).join("");
 

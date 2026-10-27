@@ -57,21 +57,25 @@
     const sortNum = (a) => a.sort((x, y) => x - y);
     const key = (gr) => gr.n.join("-") + "|" + gr.b.join("-");
 
-    // Deux grilles tirées au sort parmi les numéros autorisés les plus fréquents :
-    // grille 1 dans les 10 plus sortis, grille 2 dans les 15 plus sortis.
-    // Un nouveau clic donne de nouvelles grilles, différentes du clic précédent (avoid).
+    // Quatre grilles tirées au sort parmi les numéros autorisés les plus fréquents,
+    // avec un choix de plus en plus large (10, 15, 20, 25 plus sortis ; idem pour Chance/Étoiles).
+    // Un nouveau clic donne de nouvelles grilles, différentes entre elles et du clic précédent (avoid).
     const pick = (size, bonusSize) => ({
       n: sortNum(weightedPick(rMain.slice(0, size), g.mainPick, rnd)),
       b: sortNum(weightedPick(rBonus.slice(0, bonusSize), g.bonusPick, rnd)),
     });
+    const bonusPools = gameId === "loto" ? [4, 6, 8, 9] : [5, 7, 9, 10];
     const seen = new Set(avoid);
-    let g1, g2, tries = 0;
-    do { g1 = pick(10, Math.max(g.bonusPick * 2, 4)); } while (seen.has(key(g1)) && ++tries < 50);
-    tries = 0;
-    do { g2 = pick(15, Math.max(g.bonusPick * 3, 6)); } while ((key(g2) === key(g1) || seen.has(key(g2))) && ++tries < 50);
+    const grids = [];
+    [10, 15, 20, 25].forEach((size, i) => {
+      let gr, tries = 0;
+      do { gr = pick(size, bonusPools[i]); } while (seen.has(key(gr)) && ++tries < 50);
+      seen.add(key(gr));
+      grids.push({ ...gr, pool: size });
+    });
 
     // Contrôle final de la règle absolue
-    for (const gr of [g1, g2]) {
+    for (const gr of grids) {
       if (gr.n.some((x) => exMain.has(x)) || gr.b.some((x) => exBonus.has(x))) throw new Error("Règle d'exclusion violée");
     }
 
@@ -79,8 +83,8 @@
       game: g, period: p, drawsCount: inPeriod.length, previous,
       excluded: { n: [...exMain].sort((a, b) => a - b), b: [...exBonus].sort((a, b) => a - b) },
       freqMain: fMain, freqBonus: fBonus,
-      grids: [g1, g2],
-      keys: [key(g1), key(g2)],
+      grids,
+      keys: grids.map(key),
     };
   }
 
