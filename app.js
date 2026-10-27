@@ -50,19 +50,19 @@
     const g = res.game;
     let html = res.grids.map((gr, i) => gr.special ? `
       <article class="grid special">
-        <h2>Grille 5 · Spéciale <small>plus sortis + moins sortis</small></h2>
+        <h2>Grille 5 · Spéciale <small>5 mois · plus + moins sortis</small></h2>
         <div class="row">${balls(gr.n, "red")}<span class="sep"></span>${balls(gr.b, "bonus red")}</div>
       </article>` : `
       <article class="grid">
-        <h2>Grille ${i + 1} <small>parmi les ${gr.pool} plus sortis</small></h2>
+        <h2>Grille ${i + 1} <small>${gr.months === 1 ? "1 mois" : gr.months + " mois"} · top ${gr.pool}</small></h2>
         <div class="row">${balls(gr.n, "")}<span class="sep"></span>${balls(gr.b, "bonus")}</div>
       </article>`).join("");
 
     const top = res.freqMain.map((f, x) => ({ x, f })).slice(1).sort((a, b) => b.f - a.f).slice(0, 8);
     html += `
       <div class="info">
-        <p><b>Analyse</b> du ${fr(res.period.from)} au ${fr(res.period.to)} · ${res.drawsCount} tirages</p>
-        <p><b>Plus sortis</b> : ${top.map((t) => `${t.x}<sup>×${t.f}</sup>`).join(" ")}</p>
+        ${res.periods.map((p) => `<p><b>${p.months === 1 ? "Grilles 1-2" : p.months === 3 ? "Grilles 3-4" : "Grille 5"}</b> : du ${fr(p.from)} au ${fr(p.to)} · ${p.drawsCount} tirages</p>`).join("")}
+        <p><b>Plus sortis (1 mois)</b> : ${top.map((t) => `${t.x}<sup>×${t.f}</sup>`).join(" ")}</p>
         ${res.previous.length
           ? `<p><b>Exclus</b> (tirages du ${res.previous.map((p) => fr(p.date)).join(" et du ")}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
           : `<p class="bad">Aucun tirage précédent trouvé : pas d'exclusion possible.</p>`}
