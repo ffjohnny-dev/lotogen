@@ -1,6 +1,6 @@
 // LotoGen – algorithme
 // Grilles 1-2 : fréquences depuis le 1er du mois dernier · Grilles 3-4 : depuis 3 mois · Grille 5 « Spéciale » : depuis 5 mois.
-// Toujours : exclusion stricte des numéros des 2 derniers tirages.
+// Toujours : exclusion stricte des numéros du dernier tirage ; un même numéro dans 2 grilles maximum.
 (function (root) {
   const GAMES = {
     loto: { label: "Loto", mainMax: 49, mainPick: 5, bonusMax: 10, bonusPick: 1, bonusName: "N° Chance" },
@@ -48,7 +48,7 @@
     const g = GAMES[gameId];
     const sorted = [...draws].sort((a, b) => (a.date < b.date ? 1 : -1));
     const todayIso = iso(today);
-    const previous = sorted.filter((d) => d.date < todayIso).slice(0, 2); // les 2 derniers tirages avant aujourd'hui
+    const previous = sorted.filter((d) => d.date < todayIso).slice(0, 1); // le dernier tirage avant aujourd'hui
     const exMain = new Set(previous.flatMap((d) => d.n));
     const exBonus = new Set(previous.flatMap((d) => d.b));
 
@@ -75,10 +75,19 @@
 
     const seen = new Set(avoid);
     const grids = [];
+    // Limite de répétition : un même numéro (ou étoile / N° Chance) dans 2 grilles maximum sur 5
+    const MAX_REPEAT = 2;
+    const usedMain = {}, usedBonus = {};
+    const free = (pool, used, need) => {
+      const ok = pool.filter((o) => (used[o.x] || 0) < MAX_REPEAT);
+      return ok.length >= need ? ok : pool; // sécurité : si trop peu de choix, on garde le vivier complet
+    };
     const unique = (make) => {
       let gr, tries = 0;
       do { gr = make(); } while (seen.has(key(gr)) && ++tries < 50);
       seen.add(key(gr));
+      gr.n.forEach((x) => (usedMain[x] = (usedMain[x] || 0) + 1));
+      gr.b.forEach((x) => (usedBonus[x] = (usedBonus[x] || 0) + 1));
       return gr;
     };
 
@@ -92,8 +101,8 @@
     for (const { months, size, bonusSize } of plan) {
       const s = stats[months];
       const gr = unique(() => ({
-        n: sortNum(weightedPick(s.rMain.slice(0, size), g.mainPick, rnd)),
-        b: sortNum(weightedPick(s.rBonus.slice(0, bonusSize), g.bonusPick, rnd)),
+        n: sortNum(weightedPick(free(s.rMain.slice(0, size), usedMain, g.mainPick), g.mainPick, rnd)),
+        b: sortNum(weightedPick(free(s.rBonus.slice(0, bonusSize), usedBonus, g.bonusPick), g.bonusPick, rnd)),
       }));
       grids.push({ ...gr, pool: size, months });
     }
@@ -103,9 +112,11 @@
     // Loto : le N° Chance au hasard parmi les 3 plus sortis ou les 3 moins sortis.
     const s5 = stats[5];
     const topMain = s5.rMain.slice(0, 10), rareMain = s5.rMain.slice(-10).filter((o) => !topMain.includes(o));
-    const topBonus = s5.rBonus.slice(0, 3), rareBonus = s5.rBonus.slice(-3).filter((o) => !topBonus.includes(o));
+    // Étoiles / N° Chance : on écarte d'abord ceux déjà utilisés 2 fois, puis on prend les 3 plus et 3 moins sortis restants
+    const bonusFree = free(s5.rBonus, usedBonus, 2 * g.bonusPick);
+    const topBonus = bonusFree.slice(0, 3), rareBonus = bonusFree.slice(-3).filter((o) => !topBonus.includes(o));
     const sp = unique(() => ({
-      n: sortNum([...weightedPick(topMain, 3, rnd), ...uniformPick(rareMain, 2)]),
+      n: sortNum([...weightedPick(free(topMain, usedMain, 3), 3, rnd), ...uniformPick(free(rareMain, usedMain, 2), 2)]),
       b: sortNum(g.bonusPick === 2
         ? [...uniformPick(topBonus, 1), ...uniformPick(rareBonus, 1)]
         : uniformPick([...topBonus, ...rareBonus], 1)),

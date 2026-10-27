@@ -64,7 +64,7 @@
         ${res.periods.map((p) => `<p><b>${p.months === 1 ? "Grilles 1-2" : p.months === 3 ? "Grilles 3-4" : "Grille 5"}</b> : du ${fr(p.from)} au ${fr(p.to)} · ${p.drawsCount} tirages</p>`).join("")}
         <p><b>Plus sortis (1 mois)</b> : ${top.map((t) => `${t.x}<sup>×${t.f}</sup>`).join(" ")}</p>
         ${res.previous.length
-          ? `<p><b>Exclus</b> (tirages du ${res.previous.map((p) => fr(p.date)).join(" et du ")}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
+          ? `<p><b>Exclus</b> (dernier tirage, du ${fr(res.previous[0].date)}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
           : `<p class="bad">Aucun tirage précédent trouvé : pas d'exclusion possible.</p>`}
       </div>`;
     if (res.drawsCount === 0) html = `<p class="bad">Aucun tirage sur la période. Les données ne sont peut-être pas à jour.</p>` + html;
