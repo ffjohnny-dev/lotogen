@@ -1,13 +1,13 @@
 :root {
   --bg: #f2f5f1; --card: #ffffff; --ink: #17211b; --muted: #5d6c62; --line: #d6ded7;
   --accent: #0f5c3a; --accent-ink: #ffffff; --ball: #f2c230; --ball-ink: #2b2100;
-  --bonus: #c8324e; --bonus-ink: #ffffff; --bad: #a33a12;
+  --bonus: #c8324e; --bonus-ink: #ffffff; --bad: #a33a12; --red: #d4202c;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0e1411; --card: #17201b; --ink: #e7ede8; --muted: #9aa99f; --line: #2a362f;
-    --accent: #3fbf7f; --accent-ink: #06150d; --bad: #f29b72; color-scheme: dark;
+    --accent: #3fbf7f; --accent-ink: #06150d; --bad: #f29b72; --red: #ff4d57; color-scheme: dark;
   }
 }
 body[data-game="euromillions"] { --accent: #1f4fa8; --bonus: #1f4fa8; --bonus-ink: #ffffff; }
@@ -53,6 +53,10 @@ body {
 .ball.bonus { background: var(--bonus); color: var(--bonus-ink); }
 .sep { width: 4px; }
 body[data-game="euromillions"] .ball.bonus { border-radius: 10px; }
+.grid.special { border: 2px solid var(--red); }
+.grid.special h2 { color: var(--red); }
+.ball.red { background: var(--red); color: #ffffff; }
+.ball.bonus.red { background: var(--card); color: var(--red); box-shadow: inset 0 0 0 3px var(--red); }
 @keyframes pop { from { transform: scale(.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .ball { animation: none; } }
 

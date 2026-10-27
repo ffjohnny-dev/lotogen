@@ -74,6 +74,27 @@
       grids.push({ ...gr, pool: size });
     });
 
+    // Grille 5 « Spéciale » : mélange de numéros parmi les plus sortis ET les moins sortis.
+    // Numéros : 3 parmi les 10 plus sortis + 2 parmi les 10 moins sortis.
+    // EuroMillions : 1 étoile parmi les 3 plus sorties + 1 parmi les 3 moins sorties.
+    // Loto : le N° Chance au hasard parmi les 3 plus sortis ou les 3 moins sortis.
+    const uniformPick = (pool, k) => {
+      const items = [...pool], out = [];
+      while (out.length < k && items.length) out.push(items.splice(Math.floor(rnd() * items.length), 1)[0].x);
+      return out;
+    };
+    const topMain = rMain.slice(0, 10), rareMain = rMain.slice(-10).filter((o) => !topMain.includes(o));
+    const topBonus = rBonus.slice(0, 3), rareBonus = rBonus.slice(-3).filter((o) => !topBonus.includes(o));
+    const pickSpecial = () => ({
+      n: sortNum([...weightedPick(topMain, 3, rnd), ...uniformPick(rareMain, 2)]),
+      b: sortNum(g.bonusPick === 2
+        ? [...uniformPick(topBonus, 1), ...uniformPick(rareBonus, 1)]
+        : uniformPick([...topBonus, ...rareBonus], 1)),
+    });
+    let sp, tries = 0;
+    do { sp = pickSpecial(); } while (seen.has(key(sp)) && ++tries < 50);
+    grids.push({ ...sp, special: true });
+
     // Contrôle final de la règle absolue
     for (const gr of grids) {
       if (gr.n.some((x) => exMain.has(x)) || gr.b.some((x) => exBonus.has(x))) throw new Error("Règle d'exclusion violée");
