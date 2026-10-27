@@ -1,0 +1,64 @@
+:root {
+  --bg: #f2f5f1; --card: #ffffff; --ink: #17211b; --muted: #5d6c62; --line: #d6ded7;
+  --accent: #0f5c3a; --accent-ink: #ffffff; --ball: #f2c230; --ball-ink: #2b2100;
+  --bonus: #c8324e; --bonus-ink: #ffffff; --bad: #a33a12;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1411; --card: #17201b; --ink: #e7ede8; --muted: #9aa99f; --line: #2a362f;
+    --accent: #3fbf7f; --accent-ink: #06150d; --bad: #f29b72; color-scheme: dark;
+  }
+}
+body[data-game="euromillions"] { --accent: #1f4fa8; --bonus: #1f4fa8; --bonus-ink: #ffffff; }
+@media (prefers-color-scheme: dark) { body[data-game="euromillions"] { --accent: #6c9cf0; --accent-ink: #08142c; --bonus: #8fb3ff; --bonus-ink: #08142c; } }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.app {
+  max-width: 480px; margin: 0 auto; display: grid; gap: 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) max(16px, env(safe-area-inset-right, 0px))
+           calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px));
+}
+.top h1 { margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
+.fresh { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+.bad { color: var(--bad); }
+
+.tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; gap: 4px; }
+.tabs button { font: inherit; font-weight: 700; border: 0; border-radius: 9px; padding: 10px; background: transparent; color: var(--ink); }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+
+.go {
+  font: inherit; font-size: 1.25rem; font-weight: 800; border: 0; border-radius: 16px;
+  padding: 20px; background: var(--accent); color: var(--accent-ink);
+  box-shadow: 0 4px 0 rgba(0,0,0,.18); transition: transform .08s;
+}
+.go:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.18); }
+.go:disabled { opacity: .45; }
+
+.out { display: grid; gap: 12px; }
+.grid { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.grid h2 { margin: 0; font-size: 1rem; }
+.grid h2 small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ball {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ball); color: var(--ball-ink); font-weight: 800; font-size: 1.15rem;
+  font-variant-numeric: tabular-nums; animation: pop .35s both;
+}
+.ball.bonus { background: var(--bonus); color: var(--bonus-ink); }
+.sep { width: 4px; }
+body[data-game="euromillions"] .ball.bonus { border-radius: 10px; }
+@keyframes pop { from { transform: scale(.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ball { animation: none; } }
+
+.info { font-size: .88rem; color: var(--muted); display: grid; gap: 4px; padding: 0 4px; }
+.info p { margin: 0; }
+.info b { color: var(--ink); }
+.ex { text-decoration: line-through; }
+sup { font-size: .7em; }
+.foot { font-size: .75rem; color: var(--muted); text-align: center; margin-top: 8px; }

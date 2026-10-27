@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LotoGen</title>
+<meta name="theme-color" content="#0f5c3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LotoGen">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <h1>LotoGen</h1>
+    <p id="fresh" class="fresh">Chargement des tirages…</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button id="tab-loto" role="tab" aria-selected="true" data-game="loto">Loto</button>
+    <button id="tab-euromillions" role="tab" aria-selected="false" data-game="euromillions">EuroMillions</button>
+  </div>
+
+  <button id="go" class="go" disabled>Générer grilles</button>
+
+  <section id="out" class="out" aria-live="polite"></section>
+
+  <footer class="foot">
+    Les tirages sont indépendants : cette méthode ne change pas les chances de gain.<br>
+    Jouer comporte des risques. Aide : 09 74 75 13 13.
+  </footer>
+</main>
+<script src="algo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
