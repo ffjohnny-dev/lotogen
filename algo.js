@@ -41,7 +41,7 @@
     return out;
   }
 
-  function analyse(gameId, draws, today, rnd = Math.random) {
+  function analyse(gameId, draws, today, rnd = Math.random, avoid = []) {
     const g = GAMES[gameId];
     const p = period(today);
     const sorted = [...draws].sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -57,15 +57,18 @@
     const sortNum = (a) => a.sort((x, y) => x - y);
     const key = (gr) => gr.n.join("-") + "|" + gr.b.join("-");
 
-    // Grille 1 : les plus fréquents
-    const g1 = { n: sortNum(rMain.slice(0, g.mainPick).map((o) => o.x)), b: sortNum(rBonus.slice(0, g.bonusPick).map((o) => o.x)) };
-    // Grille 2 : tirage pondéré parmi les plus fréquents, différente de la grille 1
-    const poolMain = rMain.slice(0, 15); // les 15 numéros autorisés les plus fréquents
-    const poolBonus = rBonus.slice(0, Math.max(g.bonusPick * 3, 5));
-    let g2, tries = 0;
-    do {
-      g2 = { n: sortNum(weightedPick(poolMain, g.mainPick, rnd)), b: sortNum(weightedPick(poolBonus, g.bonusPick, rnd)) };
-    } while (key(g2) === key(g1) && ++tries < 50);
+    // Deux grilles tirées au sort parmi les numéros autorisés les plus fréquents :
+    // grille 1 dans les 10 plus sortis, grille 2 dans les 15 plus sortis.
+    // Un nouveau clic donne de nouvelles grilles, différentes du clic précédent (avoid).
+    const pick = (size, bonusSize) => ({
+      n: sortNum(weightedPick(rMain.slice(0, size), g.mainPick, rnd)),
+      b: sortNum(weightedPick(rBonus.slice(0, bonusSize), g.bonusPick, rnd)),
+    });
+    const seen = new Set(avoid);
+    let g1, g2, tries = 0;
+    do { g1 = pick(10, Math.max(g.bonusPick * 2, 4)); } while (seen.has(key(g1)) && ++tries < 50);
+    tries = 0;
+    do { g2 = pick(15, Math.max(g.bonusPick * 3, 6)); } while ((key(g2) === key(g1) || seen.has(key(g2))) && ++tries < 50);
 
     // Contrôle final de la règle absolue
     for (const gr of [g1, g2]) {
@@ -77,6 +80,7 @@
       excluded: { n: [...exMain].sort((a, b) => a - b), b: [...exBonus].sort((a, b) => a - b) },
       freqMain: fMain, freqBonus: fBonus,
       grids: [g1, g2],
+      keys: [key(g1), key(g2)],
     };
   }
 

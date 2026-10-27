@@ -1,6 +1,6 @@
 // Permet d'ouvrir l'appli même sans réseau (dernière version connue).
 // Toujours "réseau d'abord" : une mise à jour publiée est prise tout de suite.
-const CACHE = "lotogen-v1";
+const CACHE = "lotogen-v2";
 const SHELL = ["./", "index.html", "style.css", "algo.js", "app.js", "manifest.json", "icon-180.png"];
 
 self.addEventListener("install", (e) => {

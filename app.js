@@ -2,6 +2,7 @@
 (function () {
   const $ = (s) => document.querySelector(s);
   const data = {};
+  const lastKeys = {}; // grilles du clic précédent, pour ne pas les redonner
   let game = localStorage.getItem("game") || "loto";
 
   // Les données viennent en priorité de GitHub "brut" (toujours à jour),
@@ -49,7 +50,7 @@
     const g = res.game;
     let html = res.grids.map((gr, i) => `
       <article class="grid">
-        <h2>Grille ${i + 1} <small>${i === 0 ? "les plus fréquents" : "tirage pondéré"}</small></h2>
+        <h2>Grille ${i + 1} <small>${i === 0 ? "parmi les 10 plus sortis" : "parmi les 15 plus sortis"}</small></h2>
         <div class="row">${balls(gr.n, "")}<span class="sep"></span>${balls(gr.b, "bonus")}</div>
       </article>`).join("");
 
@@ -69,7 +70,11 @@
   function generate() {
     const d = data[game];
     if (!d) return;
-    try { render(LotoAlgo.analyse(game, d.draws, new Date())); }
+    try {
+      const res = LotoAlgo.analyse(game, d.draws, new Date(), Math.random, lastKeys[game] || []);
+      lastKeys[game] = res.keys;
+      render(res);
+    }
     catch (e) { $("#out").innerHTML = `<p class="bad">Erreur : ${e.message}</p>`; }
   }
 
