@@ -123,6 +123,36 @@
     }));
     grids.push({ ...sp, special: true, months: 5 });
 
+    // Grille 6 « Anti-partage » (3 mois) : mêmes chances de gagner, mais évite les grilles très jouées
+    // par les autres joueurs, pour partager moins en cas de gain.
+    //  - au moins 2 numéros au-dessus de 31 (beaucoup de joueurs jouent des dates : 1 à 31)
+    //  - pas de 7 (numéro fétiche n°1 des joueurs), ni en numéro ni en étoile / N° Chance
+    //  - pas 3 numéros qui se suivent (ex. 12-13-14)
+    //  - pas plus de 2 numéros dans la même dizaine (1-9, 10-19, 20-29, 30-39, 40-50)
+    //  - pas de suite régulière (ex. 10-20-30-40-50)
+    const antiShareOk = (n) => {
+      if (n.filter((x) => x > 31).length < 2) return false;
+      if (n.includes(7)) return false;
+      for (let i = 0; i + 2 < n.length; i++) if (n[i + 1] === n[i] + 1 && n[i + 2] === n[i] + 2) return false;
+      const dz = {};
+      for (const x of n) { const d = Math.min(4, Math.floor(x / 10)); dz[d] = (dz[d] || 0) + 1; if (dz[d] > 2) return false; }
+      const step = n[1] - n[0];
+      if (n.every((x, i) => i === 0 || x - n[i - 1] === step)) return false;
+      return true;
+    };
+    const s3 = stats[3];
+    const poolMain6 = s3.rMain.filter((o) => o.x !== 7), poolBonus6 = s3.rBonus.filter((o) => o.x !== 7);
+    let g6 = null;
+    for (let t = 0; t < 2000 && !g6; t++) {
+      const n = sortNum(weightedPick(free(poolMain6, usedMain, g.mainPick), g.mainPick, rnd));
+      const b = sortNum(weightedPick(free(poolBonus6, usedBonus, g.bonusPick), g.bonusPick, rnd));
+      if (antiShareOk(n) && !seen.has(key({ n, b }))) g6 = { n, b };
+    }
+    if (g6) {
+      seen.add(key(g6));
+      grids.push({ ...g6, antishare: true, months: 3 });
+    }
+
     // Contrôle final de la règle absolue
     for (const gr of grids) {
       if (gr.n.some((x) => exMain.has(x)) || gr.b.some((x) => exBonus.has(x))) throw new Error("Règle d'exclusion violée");
@@ -139,6 +169,7 @@
   }
 
   const api = { GAMES, analyse, period, iso };
+  // (antiShareOk est interne à analyse ; exposée aux tests via les grilles marquées antishare)
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.LotoAlgo = api;
 })(typeof self !== "undefined" ? self : this);

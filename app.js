@@ -48,7 +48,12 @@
 
   function render(res) {
     const g = res.game;
-    let html = res.grids.map((gr, i) => gr.special ? `
+    let html = res.grids.map((gr, i) => gr.antishare ? `
+      <article class="grid anti">
+        <h2>Grille 6 · Anti-partage <small>3 mois · évite les grilles très jouées</small></h2>
+        <div class="row">${balls(gr.n, "violet")}<span class="sep"></span>${balls(gr.b, "bonus violet")}</div>
+        <p class="rule">≥ 2 numéros au-dessus de 31 · sans 7 · sans suite de 3 · 2 max par dizaine</p>
+      </article>` : gr.special ? `
       <article class="grid special">
         <h2>Grille 5 · Spéciale <small>5 mois · plus + moins sortis</small></h2>
         <div class="row">${balls(gr.n, "red")}<span class="sep"></span>${balls(gr.b, "bonus red")}</div>
@@ -61,7 +66,7 @@
     const top = res.freqMain.map((f, x) => ({ x, f })).slice(1).sort((a, b) => b.f - a.f).slice(0, 8);
     html += `
       <div class="info">
-        ${res.periods.map((p) => `<p><b>${p.months === 1 ? "Grilles 1-2" : p.months === 3 ? "Grilles 3-4" : "Grille 5"}</b> : du ${fr(p.from)} au ${fr(p.to)} · ${p.drawsCount} tirages</p>`).join("")}
+        ${res.periods.map((p) => `<p><b>${p.months === 1 ? "Grilles 1-2" : p.months === 3 ? "Grilles 3-4 et 6" : "Grille 5"}</b> : du ${fr(p.from)} au ${fr(p.to)} · ${p.drawsCount} tirages</p>`).join("")}
         <p><b>Plus sortis (1 mois)</b> : ${top.map((t) => `${t.x}<sup>×${t.f}</sup>`).join(" ")}</p>
         ${res.previous.length
           ? `<p><b>Exclus</b> (dernier tirage, du ${fr(res.previous[0].date)}) : <span class="ex">${res.excluded.n.join(" ")}</span> · ${g.bonusName} <span class="ex">${res.excluded.b.join(" ")}</span></p>`
