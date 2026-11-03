@@ -2,12 +2,14 @@
   --bg: #f2f5f1; --card: #ffffff; --ink: #17211b; --muted: #5d6c62; --line: #d6ded7;
   --accent: #0f5c3a; --accent-ink: #ffffff; --ball: #f2c230; --ball-ink: #2b2100;
   --bonus: #c8324e; --bonus-ink: #ffffff; --bad: #a33a12; --red: #d4202c; --violet: #6a3fb5; --violet-ink: #ffffff;
+  --hot: #e8590c; --mid: #c9d0cb; --mid-ink: #26302a; --mid-strong: #6b766f; --cold: #1c6fd1;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0e1411; --card: #17201b; --ink: #e7ede8; --muted: #9aa99f; --line: #2a362f;
     --accent: #3fbf7f; --accent-ink: #06150d; --bad: #f29b72; --red: #ff4d57; --violet: #b08cf5; --violet-ink: #1a0b33; color-scheme: dark;
+    --hot: #ff7a33; --mid: #4a554e; --mid-ink: #eef2ef; --mid-strong: #aab5ae; --cold: #4b95f0;
   }
 }
 body[data-game="euromillions"] { --accent: #1f4fa8; --bonus: #1f4fa8; --bonus-ink: #ffffff; }
@@ -63,6 +65,19 @@ body[data-game="euromillions"] .ball.bonus { border-radius: 10px; }
 .ball.violet { background: var(--violet); color: var(--violet-ink); }
 .ball.bonus.violet { background: var(--card); color: var(--violet); box-shadow: inset 0 0 0 3px var(--violet); }
 .grid .rule { margin: 0; font-size: .78rem; color: var(--muted); }
+.sub { border-top: 1px dashed var(--line); padding-top: 8px; display: grid; gap: 6px; }
+.sublabel { margin: 0; font-size: .78rem; color: var(--muted); font-weight: 600; }
+.ball.mini { width: 32px; height: 32px; font-size: .95rem; }
+.ball.chaud { background: var(--hot); color: #ffffff; }
+.ball.moyen { background: var(--mid); color: var(--mid-ink); }
+.ball.froid { background: var(--cold); color: #ffffff; }
+.ball.mini.bonus { background: var(--card); box-shadow: inset 0 0 0 3px currentColor; }
+.ball.mini.bonus.chaud { color: var(--hot); }
+.ball.mini.bonus.moyen { color: var(--mid-strong); }
+.ball.mini.bonus.froid { color: var(--cold); }
+.legend { margin: 0; font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 0 4px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.dot.chaud { background: var(--hot); } .dot.moyen { background: var(--mid); } .dot.froid { background: var(--cold); }
 @media (prefers-reduced-motion: reduce) { .ball { animation: none; } }
 
 .info { font-size: .88rem; color: var(--muted); display: grid; gap: 4px; padding: 0 4px; }

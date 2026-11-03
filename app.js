@@ -46,9 +46,20 @@
 
   function balls(nums, cls) { return nums.map((x) => `<span class="ball ${cls}">${x}</span>`).join(""); }
 
-  function render(res) {
+  // Sous-grille : boules colorées selon leur groupe (chaud / moyen / froid)
+  function subHtml(s) {
+    if (!s) return "";
+    const tb = (nums, tag, extra) => nums.map((x) => `<span class="ball mini ${tag[x]}${extra}">${x}</span>`).join("");
+    return `
+        <div class="sub">
+          <p class="sublabel">↳ Sous-grille · 2 chauds · 2 moyens · 1 froid</p>
+          <div class="row">${tb(s.n, s.tag, "")}<span class="sep"></span>${tb(s.b, s.btag, " bonus")}</div>
+        </div>`;
+  }
+
+  function render(res, subs) {
     const g = res.game;
-    let html = res.grids.map((gr, i) => gr.antishare ? `
+    let html = res.grids.map((gr, i) => (gr.antishare ? `
       <article class="grid anti">
         <h2>Grille 6 · Anti-partage <small>3 mois · évite les grilles très jouées</small></h2>
         <div class="row">${balls(gr.n, "violet")}<span class="sep"></span>${balls(gr.b, "bonus violet")}</div>
@@ -61,7 +72,8 @@
       <article class="grid">
         <h2>Grille ${i + 1} <small>${gr.months === 1 ? "1 mois" : gr.months + " mois"} · top ${gr.pool}</small></h2>
         <div class="row">${balls(gr.n, "")}<span class="sep"></span>${balls(gr.b, "bonus")}</div>
-      </article>`).join("");
+      </article>`).replace(/<\/article>$/, subHtml(subs && subs[i]) + "\n      </article>")).join("");
+    if (subs) html += `<p class="legend"><span class="dot chaud"></span>chaud <span class="dot moyen"></span>moyen <span class="dot froid"></span>froid <small>(sous-grilles, selon les sorties FDJ de la période)</small></p>`;
 
     const top = res.freqMain.map((f, x) => ({ x, f })).slice(1).sort((a, b) => b.f - a.f).slice(0, 8);
     html += `
@@ -82,7 +94,9 @@
     try {
       const res = LotoAlgo.analyse(game, d.draws, new Date(), Math.random, lastKeys[game] || []);
       lastKeys[game] = res.keys;
-      render(res);
+      let subs = null;
+      try { if (window.LotoSub) subs = LotoSub.addSubgrids(game, d.draws, new Date(), res, Math.random); } catch (e) { subs = null; }
+      render(res, subs);
     }
     catch (e) { $("#out").innerHTML = `<p class="bad">Erreur : ${e.message}</p>`; }
   }
